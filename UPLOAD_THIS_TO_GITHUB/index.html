@@ -1,0 +1,623 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Sphere Sewing Pattern Generator</title>
+  <style>
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      color: #17202a;
+      background: #eef3f8;
+      line-height: 1.35;
+    }
+    .wrap {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+    h1 {
+      margin: 0 0 6px;
+      font-size: 26px;
+      line-height: 1.12;
+      letter-spacing: 0;
+    }
+    p {
+      margin: 0 0 14px;
+      color: #526171;
+    }
+    .panel {
+      background: #fff;
+      border: 1px solid #d5dee8;
+      border-radius: 8px;
+      padding: 14px;
+      margin: 12px 0;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    input, select, button, textarea {
+      width: 100%;
+      font: inherit;
+      font-size: 16px;
+      border-radius: 7px;
+    }
+    input, select {
+      min-height: 46px;
+      border: 1px solid #b9c5d3;
+      padding: 8px 10px;
+      background: #fff;
+      color: #17202a;
+    }
+    button {
+      min-height: 48px;
+      border: 1px solid #99a8b8;
+      background: #fff;
+      color: #17202a;
+      font-weight: 800;
+      padding: 10px;
+      touch-action: manipulation;
+    }
+    button.primary {
+      background: #0f766e;
+      border-color: #0f766e;
+      color: #fff;
+    }
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .facts {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1px;
+      background: #d5dee8;
+      overflow: hidden;
+      border-radius: 8px;
+      border: 1px solid #d5dee8;
+    }
+    .fact {
+      background: #fff;
+      padding: 12px;
+      min-width: 0;
+    }
+    .fact b {
+      display: block;
+      font-size: 18px;
+      overflow-wrap: break-word;
+    }
+    .fact span {
+      display: block;
+      color: #64748b;
+      font-size: 13px;
+      margin-top: 3px;
+    }
+    .preview {
+      min-height: 360px;
+      border: 1px dashed #b9c5d3;
+      border-radius: 8px;
+      background: #fbfdff;
+      overflow: hidden;
+    }
+    .preview svg {
+      display: block;
+      width: 100%;
+      height: 360px;
+    }
+    .tableBox {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border: 1px solid #d5dee8;
+      border-radius: 8px;
+      background: #fff;
+    }
+    table {
+      width: 100%;
+      min-width: 680px;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    th, td {
+      padding: 9px 8px;
+      border-bottom: 1px solid #e5ebf2;
+      text-align: right;
+      white-space: nowrap;
+    }
+    th:first-child, td:first-child { text-align: left; }
+    th {
+      background: #f5f8fb;
+      color: #475569;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .status {
+      color: #526171;
+      font-size: 14px;
+      min-height: 20px;
+      margin-top: 10px;
+    }
+    .runtimeStatus {
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      color: #9a3412;
+      border-radius: 8px;
+      padding: 12px;
+      margin: 12px 0;
+      font-weight: 700;
+    }
+    .runtimeStatus.ready {
+      background: #ecfdf5;
+      border-color: #99f6e4;
+      color: #115e59;
+    }
+    .error { color: #be123c; }
+    #copyArea {
+      position: fixed;
+      left: -9999px;
+      top: 0;
+      height: 1px;
+      width: 1px;
+    }
+    @media (max-width: 620px) {
+      .wrap { padding: 12px; }
+      h1 { font-size: 23px; }
+      .grid, .buttons, .facts { grid-template-columns: 1fr; }
+      .panel { padding: 12px; }
+      .preview { min-height: 300px; }
+      .preview svg { height: 300px; }
+    }
+    @media print {
+      .controls, .buttons, .status, p { display: none; }
+      body { background: #fff; }
+      .wrap { max-width: none; padding: 0; }
+      .panel { border: 0; }
+      .preview { border: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Sphere Sewing Pattern Generator</h1>
+    <p>Full sphere fabric panels. Change the values and the measurements update below.</p>
+    <div id="runtimeStatus" class="runtimeStatus">Calculator is not running yet. If this stays visible on iPhone, the file is open in a preview that blocks JavaScript. Open it in Safari from a real web link, or share it through iCloud/hosting instead of previewing the attachment.</div>
+
+    <div class="panel controls">
+      <div class="grid">
+        <div>
+          <label for="units">Units</label>
+          <select id="units">
+            <option value="cm">cm</option>
+            <option value="mm">mm</option>
+            <option value="in">in</option>
+          </select>
+        </div>
+        <div>
+          <label for="gores">Fabric panels</label>
+          <input id="gores" type="number" min="3" max="96" step="1" value="6">
+        </div>
+        <div>
+          <label for="diameter">Diameter</label>
+          <input id="diameter" type="number" min="0.1" step="0.1" value="20">
+        </div>
+        <div>
+          <label for="seam">Seam allowance</label>
+          <input id="seam" type="number" min="0.1" step="0.1" value="0.1">
+        </div>
+        <div>
+          <label for="seamMode">Apply seam to</label>
+          <select id="seamMode">
+            <option value="both">Both long edges</option>
+            <option value="left">Left edge only</option>
+            <option value="right">Right edge only</option>
+            <option value="none">No allowance</option>
+          </select>
+        </div>
+        <div>
+          <label for="interval">Measurement interval</label>
+          <input id="interval" type="number" min="0.01" step="0.1" value="1">
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="buttons">
+        <button class="primary" id="excelBtn" type="button">Share Excel</button>
+        <button id="csvBtn" type="button">Share CSV</button>
+        <button id="copyBtn" type="button">Copy table</button>
+      </div>
+      <div id="status" class="status"></div>
+    </div>
+
+    <div class="facts" id="facts">
+      <div class="fact"><b>1256.64 cm^2</b><span>Total surface area</span></div>
+      <div class="fact"><b>31.42 cm</b><span>Panel length</span></div>
+      <div class="fact"><b>10.67 cm</b><span>Max cutting width</span></div>
+      <div class="fact"><b>0.20 cm</b><span>Min cutting width</span></div>
+    </div>
+
+    <div class="panel">
+      <h2>Panel preview</h2>
+      <div class="preview" id="preview"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Cutting measurements</h2>
+      <div class="tableBox">
+        <table>
+          <thead>
+            <tr>
+              <th>Point</th>
+              <th>From top</th>
+              <th>Finished width</th>
+              <th>Cutting width</th>
+              <th>Left allowance</th>
+              <th>Right allowance</th>
+            </tr>
+          </thead>
+          <tbody id="rows">
+            <tr><td>1</td><td>0 cm</td><td>0 cm</td><td>0.2 cm</td><td>0.1 cm</td><td>0.1 cm</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <textarea id="copyArea" aria-hidden="true"></textarea>
+  </div>
+
+  <script>
+    (function () {
+      var ids = {};
+      function el(id) {
+        if (!ids[id]) ids[id] = document.getElementById(id);
+        return ids[id];
+      }
+
+      window.onerror = function (message) {
+        showStatus("Something stopped the calculator: " + message, true);
+      };
+
+      function numberValue(id, fallback, min, max) {
+        var value = parseFloat(el(id).value);
+        if (isNaN(value)) value = fallback;
+        if (value < min) value = min;
+        if (value > max) value = max;
+        return value;
+      }
+
+      function settings() {
+        var gores = Math.round(numberValue("gores", 6, 3, 96));
+        return {
+          units: el("units").value,
+          gores: gores,
+          diameter: numberValue("diameter", 20, 0.1, 1000000),
+          seam: numberValue("seam", 0.1, 0.1, 1000000),
+          seamMode: el("seamMode").value,
+          interval: numberValue("interval", 1, 0.01, 1000000)
+        };
+      }
+
+      function allowance(s) {
+        return {
+          left: s.seamMode === "both" || s.seamMode === "left" ? s.seam : 0,
+          right: s.seamMode === "both" || s.seamMode === "right" ? s.seam : 0
+        };
+      }
+
+      function calculate() {
+        var s = settings();
+        var a = allowance(s);
+        var radius = s.diameter / 2;
+        var length = Math.PI * radius;
+        var rows = [];
+        var distance = 0;
+        var point = 1;
+        var maxFinished = 0;
+        var maxCutting = 0;
+        var minCutting = 1000000000000;
+        var step = s.interval > length ? length : s.interval;
+
+        while (distance < length) {
+          addRow(rows, point, distance, radius, s.gores, a);
+          point += 1;
+          distance += step;
+        }
+        if (rows.length === 0 || Math.abs(rows[rows.length - 1].distance - length) > length * 0.000000001) {
+          addRow(rows, point, length, radius, s.gores, a);
+        }
+
+        for (var i = 0; i < rows.length; i += 1) {
+          if (rows[i].finishedWidth > maxFinished) maxFinished = rows[i].finishedWidth;
+          if (rows[i].cuttingWidth > maxCutting) maxCutting = rows[i].cuttingWidth;
+          if (rows[i].cuttingWidth < minCutting) minCutting = rows[i].cuttingWidth;
+        }
+
+        return {
+          settings: s,
+          radius: radius,
+          length: length,
+          rows: rows,
+          totalArea: 4 * Math.PI * radius * radius,
+          maxFinishedWidth: maxFinished,
+          maxCuttingWidth: maxCutting,
+          minCuttingWidth: minCutting
+        };
+      }
+
+      function addRow(rows, point, distance, radius, gores, a) {
+        var finished = 2 * Math.PI * radius * Math.sin(distance / radius) / gores;
+        if (finished < 0) finished = 0;
+        rows.push({
+          point: point,
+          distance: distance,
+          finishedWidth: finished,
+          cuttingWidth: finished + a.left + a.right,
+          leftAllowance: a.left,
+          rightAllowance: a.right
+        });
+      }
+
+      function fmt(value) {
+        var abs = Math.abs(value);
+        var digits = abs >= 100 ? 1 : 2;
+        return (Math.round(value * Math.pow(10, digits)) / Math.pow(10, digits)).toString();
+      }
+
+      function withUnit(value, units) {
+        return fmt(value) + " " + units;
+      }
+
+      function htmlEscape(text) {
+        return String(text).replace(/[&<>"']/g, function (c) {
+          return {"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c];
+        });
+      }
+
+      function render() {
+        var data = calculate();
+        renderFacts(data);
+        renderTable(data);
+        renderPreview(data);
+        window.currentPattern = data;
+        el("runtimeStatus").className = "runtimeStatus ready";
+        el("runtimeStatus").innerHTML = "Calculator ready. Results update when values change.";
+      }
+
+      function renderFacts(data) {
+        var u = data.settings.units;
+        el("facts").innerHTML =
+          fact(fmt(data.totalArea) + " " + u + "^2", "Total surface area") +
+          fact(withUnit(data.length, u), "Max panel length") +
+          fact(withUnit(data.length, u), "Min panel length") +
+          fact(withUnit(data.maxCuttingWidth, u), "Max cutting width") +
+          fact(withUnit(data.minCuttingWidth, u), "Min cutting width") +
+          fact(data.settings.gores.toString(), "Fabric panels");
+      }
+
+      function fact(value, label) {
+        return '<div class="fact"><b>' + htmlEscape(value) + '</b><span>' + htmlEscape(label) + '</span></div>';
+      }
+
+      function renderTable(data) {
+        var html = "";
+        var u = data.settings.units;
+        for (var i = 0; i < data.rows.length; i += 1) {
+          var r = data.rows[i];
+          html += "<tr>" +
+            "<td>" + r.point + "</td>" +
+            "<td>" + htmlEscape(withUnit(r.distance, u)) + "</td>" +
+            "<td>" + htmlEscape(withUnit(r.finishedWidth, u)) + "</td>" +
+            "<td>" + htmlEscape(withUnit(r.cuttingWidth, u)) + "</td>" +
+            "<td>" + htmlEscape(withUnit(r.leftAllowance, u)) + "</td>" +
+            "<td>" + htmlEscape(withUnit(r.rightAllowance, u)) + "</td>" +
+            "</tr>";
+        }
+        el("rows").innerHTML = html;
+      }
+
+      function renderPreview(data) {
+        var rows = data.rows;
+        var margin = Math.max(data.maxCuttingWidth * 0.7, data.length * 0.05, 1);
+        var width = Math.max(data.maxCuttingWidth + margin * 2, 1);
+        var height = Math.max(data.length + margin * 2, 1);
+        var cx = width / 2;
+        var left = [];
+        var right = [];
+        var u = data.settings.units;
+
+        for (var i = 0; i < rows.length; i += 1) {
+          var y = margin + rows[i].distance;
+          left.push([cx - rows[i].cuttingWidth / 2, y]);
+          right.push([cx + rows[i].cuttingWidth / 2, y]);
+        }
+
+        var path = polygon(left, right);
+        var stroke = Math.max(width, height) / 360;
+        el("preview").innerHTML =
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + width + ' ' + height + '" aria-label="Pattern preview">' +
+          '<rect width="' + width + '" height="' + height + '" fill="#fff"/>' +
+          '<path d="' + path + '" fill="#e0f2fe" stroke="#2563eb" stroke-width="' + stroke + '"/>' +
+          '<line x1="' + cx + '" y1="' + margin + '" x2="' + cx + '" y2="' + (margin + data.length) + '" stroke="#0f766e" stroke-width="' + stroke + '"/>' +
+          '<text x="' + cx + '" y="' + (margin * 0.55) + '" text-anchor="middle" font-size="' + (stroke * 7) + '" fill="#17202a">Full sphere panel</text>' +
+          '<text x="' + cx + '" y="' + (margin + data.length + margin * 0.55) + '" text-anchor="middle" font-size="' + (stroke * 6) + '" fill="#17202a">Length ' + htmlEscape(withUnit(data.length, u)) + '</text>' +
+          '</svg>';
+      }
+
+      function polygon(left, right) {
+        var parts = [];
+        var i;
+        for (i = 0; i < left.length; i += 1) parts.push((i === 0 ? "M " : "L ") + left[i][0] + " " + left[i][1]);
+        for (i = right.length - 1; i >= 0; i -= 1) parts.push("L " + right[i][0] + " " + right[i][1]);
+        parts.push("Z");
+        return parts.join(" ");
+      }
+
+      function exportRows(data) {
+        var u = data.settings.units;
+        var rows = [
+          ["Bonus facts", "Value", "Units"],
+          ["Total finished sphere surface area", fmt(data.totalArea), u + "^2"],
+          ["Max panel length", fmt(data.length), u],
+          ["Min panel length", fmt(data.length), u],
+          ["Max cutting width", fmt(data.maxCuttingWidth), u],
+          ["Min cutting width", fmt(data.minCuttingWidth), u],
+          [],
+          ["Cutting measurements"],
+          ["Point", "Distance from top (" + u + ")", "Finished width (" + u + ")", "Cutting width (" + u + ")", "Left seam allowance (" + u + ")", "Right seam allowance (" + u + ")"]
+        ];
+        for (var i = 0; i < data.rows.length; i += 1) {
+          rows.push([
+            data.rows[i].point,
+            fmt(data.rows[i].distance),
+            fmt(data.rows[i].finishedWidth),
+            fmt(data.rows[i].cuttingWidth),
+            fmt(data.rows[i].leftAllowance),
+            fmt(data.rows[i].rightAllowance)
+          ]);
+        }
+        return rows;
+      }
+
+      function toDelimited(rows, delimiter) {
+        var lines = [];
+        for (var i = 0; i < rows.length; i += 1) {
+          var cells = [];
+          for (var j = 0; j < rows[i].length; j += 1) {
+            cells.push(quoteCell(rows[i][j], delimiter));
+          }
+          lines.push(cells.join(delimiter));
+        }
+        return lines.join("\r\n");
+      }
+
+      function quoteCell(value, delimiter) {
+        var text = value == null ? "" : String(value);
+        if (text.indexOf('"') >= 0) text = text.replace(/"/g, '""');
+        if (text.indexOf(delimiter) >= 0 || text.indexOf('"') >= 0 || text.indexOf("\n") >= 0 || text.indexOf("\r") >= 0) {
+          text = '"' + text + '"';
+        }
+        return text;
+      }
+
+      function excelHtml(data) {
+        var rows = exportRows(data);
+        var html = '<html><head><meta charset="utf-8"></head><body><table>';
+        for (var i = 0; i < rows.length; i += 1) {
+          html += "<tr>";
+          for (var j = 0; j < rows[i].length; j += 1) html += "<td>" + htmlEscape(rows[i][j]) + "</td>";
+          html += "</tr>";
+        }
+        html += "</table></body></html>";
+        return html;
+      }
+
+      function shareTextFile(text, name, type) {
+        var blob;
+        try {
+          blob = new Blob([text], { type: type });
+        } catch (e) {
+          showCopyBox(text, "Your browser blocked file creation. Copy this text instead.");
+          return;
+        }
+
+        if (navigator.share && typeof File !== "undefined" && navigator.canShare) {
+          try {
+            var file = new File([blob], name, { type: type });
+            if (navigator.canShare({ files: [file] })) {
+              navigator.share({ files: [file], title: name }).then(function () {
+                showStatus("Shared " + name + ".");
+              }).catch(function () {
+                downloadBlob(blob, name, text);
+              });
+              return;
+            }
+          } catch (ignore) {}
+        }
+        downloadBlob(blob, name, text);
+      }
+
+      function downloadBlob(blob, name, fallbackText) {
+        if (window.URL && URL.createObjectURL) {
+          var url = URL.createObjectURL(blob);
+          var link = document.createElement("a");
+          link.href = url;
+          link.download = name;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          setTimeout(function () { URL.revokeObjectURL(url); }, 30000);
+          showStatus("Created " + name + ". If iPhone does not save it, use Copy table.");
+        } else {
+          showCopyBox(fallbackText, "Copy this text into Numbers or Excel.");
+        }
+      }
+
+      function showCopyBox(text, message) {
+        var area = el("copyArea");
+        area.style.position = "static";
+        area.style.width = "100%";
+        area.style.height = "180px";
+        area.value = text;
+        area.focus();
+        area.select();
+        showStatus(message);
+      }
+
+      function copyTable() {
+        var text = toDelimited(exportRows(window.currentPattern || calculate()), "\t");
+        var area = el("copyArea");
+        area.style.position = "static";
+        area.style.width = "100%";
+        area.style.height = "180px";
+        area.value = text;
+        area.focus();
+        area.select();
+        try {
+          document.execCommand("copy");
+          showStatus("Table copied. Paste it into Numbers, Excel, or Notes.");
+        } catch (e) {
+          showStatus("Select the text box and copy it manually.");
+        }
+      }
+
+      function showStatus(message, error) {
+        el("status").className = error ? "status error" : "status";
+        el("status").innerHTML = htmlEscape(message);
+      }
+
+      function attachEvents() {
+        var controls = ["units", "gores", "diameter", "seam", "seamMode", "interval"];
+        for (var i = 0; i < controls.length; i += 1) {
+          el(controls[i]).oninput = render;
+          el(controls[i]).onchange = render;
+          el(controls[i]).onkeyup = render;
+        }
+        el("excelBtn").onclick = function () {
+          var data = window.currentPattern || calculate();
+          shareTextFile(excelHtml(data), "SpherePatternMeasurements.xls", "application/vnd.ms-excel");
+        };
+        el("csvBtn").onclick = function () {
+          var data = window.currentPattern || calculate();
+          shareTextFile(toDelimited(exportRows(data), ","), "SpherePatternMeasurements.csv", "text/csv");
+        };
+        el("copyBtn").onclick = copyTable;
+      }
+
+      attachEvents();
+      render();
+    }());
+  </script>
+</body>
+</html>
